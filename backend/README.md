@@ -71,4 +71,4 @@ Supported events:
 .\gradlew.bat clean test
 ```
 
-The current scope intentionally excludes a frontend, Docker, persistence, authentication, athlete management, and combined totals.
+The current scope intentionally excludes persistence, authentication, athlete management, and combined totals.
