@@ -1,4 +1,4 @@
-# Kümne Punkti
+# Kümme Punkti
 
 Decathlon points calculator with a Spring Boot backend and React frontend.
 
