@@ -10,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -25,6 +27,20 @@ class DecathlonPointsControllerTest {
 
     @MockitoBean
     private DecathlonPointsService pointsService;
+
+    @Test
+    void returnsAllEventsInOfficialOrder() throws Exception {
+        when(pointsService.getEvents()).thenReturn(List.of(DecathlonEvent.values()));
+
+        mockMvc.perform(get("/api/v1/decathlon/events"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(10))
+                .andExpect(jsonPath("$[0].event").value("HUNDRED_METRES"))
+                .andExpect(jsonPath("$[0].displayName").value("100 Metres"))
+                .andExpect(jsonPath("$[0].unit").value("SECONDS"))
+                .andExpect(jsonPath("$[9].event").value("FIFTEEN_HUNDRED_METRES"))
+                .andExpect(jsonPath("$[9].displayName").value("1500 Metres"));
+    }
 
     @Test
     void calculatesPoints() throws Exception {

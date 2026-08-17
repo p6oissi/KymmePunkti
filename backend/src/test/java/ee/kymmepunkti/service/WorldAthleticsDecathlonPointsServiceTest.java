@@ -9,12 +9,19 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.stream.Stream;
 
+import static java.util.List.of;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class WorldAthleticsDecathlonPointsServiceTest {
 
     private final DecathlonPointsService service = new WorldAthleticsDecathlonPointsService();
+
+    @Test
+    void returnsEventsInOfficialDecathlonOrder() {
+        assertEquals(of(DecathlonEvent.values()), service.getEvents());
+    }
 
     @ParameterizedTest
     @MethodSource("officialScoringExamples")
@@ -33,7 +40,7 @@ class WorldAthleticsDecathlonPointsServiceTest {
     }
 
     @Test
-    void roundsPointsDown() {
+    void calculatesOfficialAutomaticHundredMetresExample() {
         assertEquals(999, service.calculatePoints(DecathlonEvent.HUNDRED_METRES, 10.40));
     }
 

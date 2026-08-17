@@ -4,6 +4,8 @@ import ee.kymmepunkti.domain.DecathlonEvent;
 import ee.kymmepunkti.domain.CalculationType;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class WorldAthleticsDecathlonPointsService implements DecathlonPointsService {
 
@@ -22,6 +24,11 @@ public class WorldAthleticsDecathlonPointsService implements DecathlonPointsServ
         }
 
         return calculateThrowPoints(event, result);
+    }
+
+    @Override
+    public List<DecathlonEvent> getEvents() {
+        return List.of(DecathlonEvent.values());
     }
 
     private int calculateTrackPoints(DecathlonEvent event, double resultInSeconds) {
