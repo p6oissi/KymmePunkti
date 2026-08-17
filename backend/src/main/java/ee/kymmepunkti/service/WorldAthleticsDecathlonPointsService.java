@@ -1,9 +1,14 @@
 package ee.kymmepunkti.service;
 
 import ee.kymmepunkti.domain.DecathlonEvent;
+import ee.kymmepunkti.domain.DecathlonEventScore;
+import ee.kymmepunkti.domain.DecathlonPerformance;
 import ee.kymmepunkti.domain.CalculationType;
+import ee.kymmepunkti.domain.FullDecathlonScore;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 
 @Service
@@ -24,6 +29,43 @@ public class WorldAthleticsDecathlonPointsService implements DecathlonPointsServ
         }
 
         return calculateThrowPoints(event, result);
+    }
+
+    @Override
+    public FullDecathlonScore calculateFullDecathlon(List<DecathlonPerformance> performances) {
+        if (performances == null || performances.size() != DecathlonEvent.values().length) {
+            throw new IllegalArgumentException("Exactly ten event results are required");
+        }
+
+        var resultsByEvent = new EnumMap<DecathlonEvent, Double>(DecathlonEvent.class);
+
+        for (var performance : performances) {
+            if (performance == null) {
+                throw new IllegalArgumentException("Event result must not be null");
+            }
+
+            validate(performance.event(), performance.result());
+
+            if (resultsByEvent.put(performance.event(), performance.result()) != null) {
+                throw new IllegalArgumentException("Each decathlon event must be provided exactly once");
+            }
+        }
+
+        var eventScores = new ArrayList<DecathlonEventScore>();
+        int totalPoints = 0;
+
+        for (var event : getEvents()) {
+            Double result = resultsByEvent.get(event);
+            if (result == null) {
+                throw new IllegalArgumentException("Each decathlon event must be provided exactly once");
+            }
+
+            int points = calculatePoints(event, result);
+            eventScores.add(new DecathlonEventScore(event, result, points));
+            totalPoints += points;
+        }
+
+        return new FullDecathlonScore(totalPoints, eventScores);
     }
 
     @Override

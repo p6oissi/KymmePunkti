@@ -1,6 +1,10 @@
 package ee.kymmepunkti.controller;
 
+import ee.kymmepunkti.domain.DecathlonPerformance;
 import ee.kymmepunkti.dto.DecathlonEventResponse;
+import ee.kymmepunkti.dto.DecathlonEventScoreResponse;
+import ee.kymmepunkti.dto.FullDecathlonCalculationRequest;
+import ee.kymmepunkti.dto.FullDecathlonCalculationResponse;
 import ee.kymmepunkti.dto.PointsCalculationRequest;
 import ee.kymmepunkti.dto.PointsCalculationResponse;
 import ee.kymmepunkti.service.DecathlonPointsService;
@@ -53,5 +57,35 @@ public class DecathlonPointsController {
         );
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/total")
+    public ResponseEntity<FullDecathlonCalculationResponse> calculateTotal(
+            @Valid @RequestBody FullDecathlonCalculationRequest request
+    ) {
+        var performances = new ArrayList<DecathlonPerformance>();
+
+        for (var result : request.results()) {
+            performances.add(new DecathlonPerformance(result.event(), result.result()));
+        }
+
+        var fullScore = pointsService.calculateFullDecathlon(performances);
+        var resultResponses = new ArrayList<DecathlonEventScoreResponse>();
+
+        for (var eventScore : fullScore.eventScores()) {
+            var event = eventScore.event();
+            resultResponses.add(new DecathlonEventScoreResponse(
+                    event,
+                    event.displayName(),
+                    eventScore.result(),
+                    event.measurementUnit(),
+                    eventScore.points()
+            ));
+        }
+
+        return ResponseEntity.ok(new FullDecathlonCalculationResponse(
+                fullScore.totalPoints(),
+                resultResponses
+        ));
     }
 }

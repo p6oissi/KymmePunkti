@@ -1,6 +1,7 @@
 package ee.kymmepunkti.service;
 
 import ee.kymmepunkti.domain.DecathlonEvent;
+import ee.kymmepunkti.domain.DecathlonPerformance;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -8,6 +9,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.List.of;
 
@@ -42,6 +45,67 @@ class WorldAthleticsDecathlonPointsServiceTest {
     @Test
     void calculatesOfficialAutomaticHundredMetresExample() {
         assertEquals(999, service.calculatePoints(DecathlonEvent.HUNDRED_METRES, 10.40));
+    }
+
+    @Test
+    void calculatesFullDecathlonInOfficialOrder() {
+        var performances = officialDecathlonPerformances();
+
+        var score = service.calculateFullDecathlon(performances);
+
+        assertEquals(10_004, score.totalPoints());
+        assertEquals(10, score.eventScores().size());
+        assertEquals(DecathlonEvent.HUNDRED_METRES, score.eventScores().getFirst().event());
+        assertEquals(DecathlonEvent.FIFTEEN_HUNDRED_METRES, score.eventScores().getLast().event());
+    }
+
+    @Test
+    void rejectsIncompleteDecathlon() {
+        var performances = officialDecathlonPerformances().subList(0, 9);
+
+        var exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.calculateFullDecathlon(performances)
+        );
+
+        assertEquals("Exactly ten event results are required", exception.getMessage());
+    }
+
+    @Test
+    void rejectsDuplicateEventInFullDecathlon() {
+        var performances = new ArrayList<>(officialDecathlonPerformances());
+        performances.set(9, performances.getFirst());
+
+        var exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.calculateFullDecathlon(performances)
+        );
+
+        assertEquals("Each decathlon event must be provided exactly once", exception.getMessage());
+    }
+
+    @Test
+    void rejectsNullFullDecathlon() {
+        var exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.calculateFullDecathlon(null)
+        );
+
+        assertEquals("Exactly ten event results are required", exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {0.0, -1.0, Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY})
+    void rejectsInvalidResultInFullDecathlon(double invalidResult) {
+        var performances = new ArrayList<>(officialDecathlonPerformances());
+        performances.set(0, new DecathlonPerformance(DecathlonEvent.HUNDRED_METRES, invalidResult));
+
+        var exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.calculateFullDecathlon(performances)
+        );
+
+        assertEquals("Result must be a finite number greater than zero", exception.getMessage());
     }
 
     @Test
@@ -85,6 +149,21 @@ class WorldAthleticsDecathlonPointsServiceTest {
                 Arguments.of(DecathlonEvent.HUNDRED_METRES, 18.0),
                 Arguments.of(DecathlonEvent.LONG_JUMP, 2.20),
                 Arguments.of(DecathlonEvent.SHOT_PUT, 1.50)
+        );
+    }
+
+    private static List<DecathlonPerformance> officialDecathlonPerformances() {
+        return List.of(
+                new DecathlonPerformance(DecathlonEvent.HUNDRED_METRES, 10.39),
+                new DecathlonPerformance(DecathlonEvent.LONG_JUMP, 7.76),
+                new DecathlonPerformance(DecathlonEvent.SHOT_PUT, 18.40),
+                new DecathlonPerformance(DecathlonEvent.HIGH_JUMP, 2.21),
+                new DecathlonPerformance(DecathlonEvent.FOUR_HUNDRED_METRES, 46.17),
+                new DecathlonPerformance(DecathlonEvent.HUNDRED_TEN_METRES_HURDLES, 13.80),
+                new DecathlonPerformance(DecathlonEvent.DISCUS_THROW, 56.17),
+                new DecathlonPerformance(DecathlonEvent.POLE_VAULT, 5.29),
+                new DecathlonPerformance(DecathlonEvent.JAVELIN_THROW, 77.19),
+                new DecathlonPerformance(DecathlonEvent.FIFTEEN_HUNDRED_METRES, 233.79)
         );
     }
 }

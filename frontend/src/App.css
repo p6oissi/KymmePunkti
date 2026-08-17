@@ -1,27 +1,103 @@
 .page {
+  --page-background: #f3f8f4;
+  --surface: #ffffff;
+  --text: #111111;
+  --muted: #5f6861;
+  --green: #16803c;
+  --green-dark: #0f642e;
+  --soft-green: #eff8f1;
+  --focus: #7dde9b;
+  --border: #dce8df;
+  --border-strong: #9dad9f;
+  --error: #a51d2d;
+  --shadow: 0 1.5rem 4rem rgba(21, 74, 38, 0.12);
+
   min-height: 100vh;
   display: grid;
   place-items: center;
   padding: 2rem 1rem;
+  color: var(--text);
+  background: var(--page-background);
+  transition: color 200ms ease, background-color 200ms ease;
+}
+
+.page--full {
+  --page-background: #080a09;
+  --surface: #111411;
+  --text: #ffffff;
+  --muted: #b6c0b8;
+  --green: #48d477;
+  --green-dark: #32b75f;
+  --soft-green: #202b23;
+  --focus: #78e49c;
+  --border: #2e3931;
+  --border-strong: #617066;
+  --error: #ff8f9c;
+  --shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.2);
 }
 
 .calculator {
   width: min(100%, 36rem);
   min-height: 38rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: clamp(2rem, 6vw, 4rem);
-  background: var(--white);
+  padding: clamp(1.5rem, 5vw, 3.5rem);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 1.5rem;
   box-shadow: var(--shadow);
-  overflow: hidden;
+  transition: width 220ms ease, background-color 200ms ease;
+}
+
+.calculator--full {
+  width: min(100%, 58rem);
+}
+
+.mode-switch {
+  width: fit-content;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0 auto 2.25rem;
+  padding: 0.25rem;
+  background: var(--soft-green);
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+}
+
+.mode-switch__button {
+  min-height: 2.75rem;
+  padding: 0.6rem 1rem;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-radius: 0.55rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mode-switch__button--active {
+  color: var(--surface);
+  background: var(--text);
+}
+
+.calculator__content {
+  min-height: 30rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.calculator__content--result {
+  justify-content: flex-start;
 }
 
 .calculator__header {
   margin-bottom: 2.5rem;
   text-align: center;
+}
+
+.calculator__header--full {
+  margin-bottom: 2rem;
 }
 
 .calculator__header h1 {
@@ -32,7 +108,7 @@
 }
 
 .calculator__header > p:last-child {
-  max-width: 27rem;
+  max-width: 31rem;
   margin: 0 auto;
   color: var(--muted);
 }
@@ -48,6 +124,7 @@
 }
 
 .status {
+  margin-top: 8rem;
   color: var(--muted);
   text-align: center;
 }
@@ -59,15 +136,11 @@
   transition: transform 220ms ease;
 }
 
-.calculator--result {
-  justify-content: flex-start;
-}
-
-.calculator--result .calculator__header {
+.calculator__content--result .calculator__header {
   margin-bottom: 1.5rem;
 }
 
-.calculator--result .calculator__form {
+.calculator__content--result .calculator__form {
   transform: translateY(-0.5rem) scale(0.94);
 }
 
@@ -79,8 +152,18 @@
 }
 
 .field label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
   font-size: 0.85rem;
   font-weight: 700;
+}
+
+.field__unit {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .field select,
@@ -88,11 +171,15 @@
   width: 100%;
   min-height: 3.25rem;
   padding: 0.75rem 0.9rem;
-  color: var(--black);
-  background: var(--white);
+  color: var(--text);
+  background: var(--surface);
   border: 1px solid var(--border-strong);
   border-radius: 0.65rem;
   font: inherit;
+}
+
+.page--full .field input {
+  background: var(--soft-green);
 }
 
 .field select:disabled,
@@ -102,9 +189,15 @@
   cursor: not-allowed;
 }
 
+.field input::placeholder {
+  color: var(--muted);
+  opacity: 0.85;
+}
+
 .field select:focus-visible,
 .field input:focus-visible,
-.button:focus-visible {
+.button:focus-visible,
+.mode-switch__button:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
@@ -131,9 +224,13 @@
 .button--primary {
   grid-column: 1 / -1;
   margin-top: 0.5rem;
-  color: var(--white);
+  color: #ffffff;
   background: var(--green);
   border: 1px solid var(--green);
+}
+
+.page--full .button--primary {
+  color: #0c0f0d;
 }
 
 .button--primary:hover:not(:disabled) {
@@ -141,14 +238,14 @@
 }
 
 .button--secondary {
-  color: var(--black);
-  background: var(--white);
-  border: 2px solid var(--black);
+  color: var(--text);
+  background: var(--surface);
+  border: 2px solid var(--text);
 }
 
 .button--secondary:hover {
-  color: var(--white);
-  background: var(--black);
+  color: var(--surface);
+  background: var(--text);
 }
 
 .form-error,
@@ -158,18 +255,26 @@
   text-align: center;
 }
 
+.load-error {
+  margin-top: 7rem;
+}
+
 .load-error .button {
   margin-top: 1.25rem;
 }
 
-.score {
+.score,
+.full-score {
   display: flex;
-  flex: 1;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding-top: 1.5rem;
   border-top: 1px solid var(--border);
+}
+
+.score {
+  flex: 1;
 }
 
 .score__value {
@@ -183,14 +288,47 @@
 
 .score__unit {
   margin: 0.5rem 0 2rem;
-  color: var(--black);
+  color: var(--text);
 }
 
-.score .button {
+.score .button,
+.full-score .button {
   min-width: 10rem;
 }
 
-@media (max-width: 36rem) {
+.full-form__fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.full-form > .button {
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.score-breakdown {
+  width: min(100%, 32rem);
+  margin: 0 0 2rem;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border);
+}
+
+.score-breakdown li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.score-breakdown strong {
+  color: var(--text);
+}
+
+@media (max-width: 42rem) {
   .page {
     padding: 0;
   }
@@ -202,16 +340,23 @@
     box-shadow: none;
   }
 
-  .calculator__form {
+  .calculator__form,
+  .full-form__fields {
     grid-template-columns: 1fr;
   }
 
   .button--primary {
     grid-column: auto;
   }
+
+  .mode-switch {
+    width: 100%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .page,
+  .calculator,
   .calculator__form,
   .button {
     transition: none;
